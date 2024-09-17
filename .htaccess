@@ -1,0 +1,13 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Handle requests for non-existent files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+
+# Allow access to CSS and JS files directly
+<FilesMatch "\.(css|js|project_images)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>

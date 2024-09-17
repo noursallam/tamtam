@@ -45,9 +45,9 @@ $fetch_categories->execute();
     <link rel="manifest" href="./assets/logo/site.webmanifest">
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="./assets/libraries/aos/aos.css">
-    <link rel="stylesheet" href="./assets/css/main.min.rtl.css">
-    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet"   type="text/css" href="./assets/libraries/aos/aos.css">
+    <link rel="stylesheet"  type="text/css" href="./assets/css/main.min.rtl.css">
+    <link rel="stylesheet"  type="text/css" href="./assets/css/style.css">
 
     <!-- Open Graph Meta Tags for Social Sharing -->
     <!-- Update the 'title' and 'description' content below to enhance social sharing -->

@@ -1,0 +1,9 @@
+# Allow access to CSS files
+<FilesMatch "\.css$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevent direct access to other files
+Order Deny,Allow
+Deny from all
