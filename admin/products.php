@@ -11,43 +11,10 @@ if (!isset($admin_id)) {
     exit();
 }
 
-// Handle adding a new category
-if (isset($_POST['add_category'])) {
-    $category_name = $_POST['category_name'];
-    $category_name = filter_var($category_name, FILTER_SANITIZE_STRING);
-
-    $category_image = $_FILES['category_image']['name'];
-    $category_image = filter_var($category_image, FILTER_SANITIZE_STRING);
-    $category_image_size = $_FILES['category_image']['size'];
-    $category_image_tmp_name = $_FILES['category_image']['tmp_name'];
-    $category_image_folder = '../uploaded_img/' . $category_image;
-
-    // Check if the category already exists
-    $select_category = $conn->prepare("SELECT * FROM `categories` WHERE name = ?");
-    $select_category->execute([$category_name]);
-
-    if ($select_category->rowCount() > 0) {
-        $message[] = 'Category already exists!';
-    } else {
-        if ($category_image_size > 2000000) {
-            $message[] = 'Category image size is too large';
-        } else {
-            move_uploaded_file($category_image_tmp_name, $category_image_folder);
-
-            $insert_category = $conn->prepare("INSERT INTO `categories` (name, image) VALUES (?, ?)");
-            $insert_category->execute([$category_name, $category_image]);
-
-            $message[] = 'New category added!';
-        }
-    }
-}
-
 // Handle adding a new product
 if (isset($_POST['add_product'])) {
     $name = $_POST['name'];
     $name = filter_var($name, FILTER_SANITIZE_STRING);
-    $price = $_POST['price'];
-    $price = filter_var($price, FILTER_SANITIZE_STRING);
     $category_id = $_POST['category'];
     $description = $_POST['description'];
     $description = filter_var($description, FILTER_SANITIZE_STRING);
@@ -56,6 +23,13 @@ if (isset($_POST['add_product'])) {
     $image_size = $_FILES['image']['size'];
     $image_tmp_name = $_FILES['image']['tmp_name'];
     $image_folder = '../uploaded_img/' . $image;
+
+    // Prices based on the number of prices selected
+    $number_of_prices = $_POST['number_of_prices'];
+    $prices = [];
+    for ($i = 1; $i <= $number_of_prices; $i++) {
+        $prices[] = isset($_POST['price_' . $i]) ? $_POST['price_' . $i] : null;
+    }
 
     $select_products = $conn->prepare("SELECT * FROM `products` WHERE name = ?");
     $select_products->execute([$name]);
@@ -68,26 +42,21 @@ if (isset($_POST['add_product'])) {
         } else {
             move_uploaded_file($image_tmp_name, $image_folder);
 
-            $insert_product = $conn->prepare("INSERT INTO `products` (name, category_id, price, image, description) VALUES (?, ?, ?, ?, ?)");
-            $insert_product->execute([$name, $category_id, $price, $image, $description]);
+            // Prepare the SQL query
+            $price_columns = [];
+            for ($i = 1; $i <= $number_of_prices; $i++) {
+                $price_columns[] = "price_$i";
+            }
+            $placeholders = implode(',', array_fill(0, $number_of_prices, '?'));
+            $sql = "INSERT INTO `products` (name, category_id, " . implode(',', $price_columns) . ", image, description) VALUES (?, ?, $placeholders, ?, ?)";
+            
+            // Execute the SQL query
+            $insert_product = $conn->prepare($sql);
+            $insert_product->execute(array_merge([$name, $category_id], $prices, [$image, $description]));
 
             $message[] = 'New product added!';
         }
     }
-}
-
-// Handle deleting a product
-if (isset($_GET['delete'])) {
-    $delete_id = $_GET['delete'];
-    $delete_product_image = $conn->prepare("SELECT * FROM `products` WHERE id = ?");
-    $delete_product_image->execute([$delete_id]);
-    $fetch_delete_image = $delete_product_image->fetch(PDO::FETCH_ASSOC);
-    unlink('../uploaded_img/' . $fetch_delete_image['image']);
-    $delete_product = $conn->prepare("DELETE FROM `products` WHERE id = ?");
-    $delete_product->execute([$delete_id]);
-  
-    header('location:products.php');
-    exit();
 }
 
 ?>
@@ -107,22 +76,35 @@ if (isset($_GET['delete'])) {
    <link rel="stylesheet" href="../css/admin_style.css">
 
 </head>
+<style>
+.box {
+  margin-bottom: 20px; /* or padding-bottom: 20px; */
+}
+
+.box-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* optional */
+}
+
+.category {
+  font-weight: bold;
+  margin-bottom: 10px; /* add some space between category and prices */
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* space prices evenly */
+}
+
+.price {
+  margin: 0 10px; /* add some space between prices */
+}
+</style>
 <body>
 
 <?php include '../components/admin_header.php' ?>
-
-<!-- Add category section starts  -->
-
-<section class="add-category">
-   <form action="" method="POST" enctype="multipart/form-data">
-      <h3>Add New Category</h3>
-      <input type="text" required placeholder="Enter category name" name="category_name" maxlength="100" class="box">
-      <input type="file" name="category_image" class="box" accept="image/jpg, image/jpeg, image/png, image/webp" required>
-      <input type="submit" value="Add Category" name="add_category" class="btn">
-   </form>
-</section>
-
-<!-- Add category section ends -->
 
 <!-- Add products section starts  -->
 
@@ -131,7 +113,7 @@ if (isset($_GET['delete'])) {
    <form action="" method="POST" enctype="multipart/form-data">
       <h3>Add Product</h3>
       <input type="text" required placeholder="Enter product name" name="name" maxlength="100" class="box">
-      <input type="number" min="0" max="9999999999" required placeholder="Enter product price" name="price" onkeypress="if(this.value.length == 10) return false;" class="box">
+      
       <select name="category" class="box" required>
          <option value="" disabled selected>Select Category --</option>
          <?php
@@ -147,8 +129,23 @@ if (isset($_GET['delete'])) {
          }
          ?>
       </select>
+      
       <input type="file" name="image" class="box" accept="image/jpg, image/jpeg, image/png, image/webp" required>
       <textarea name="description" placeholder="Enter product description" class="box" required></textarea>
+      
+      <!-- Number of prices -->
+      <h4>Select Number of Prices:</h4>
+      <select name="number_of_prices" id="number_of_prices" class="box" onchange="updatePriceFields(this.value)">
+         <option value="1">1 Price</option>
+         <option value="2">2 Prices</option>
+         <option value="3">3 Prices</option>
+      </select>
+
+      <!-- Price inputs -->
+      <div id="price_fields">
+         <input type="number" step="0.01" name="price_1" class="box" placeholder="Enter price 1">
+      </div>
+
       <input type="submit" value="Add Product" name="add_product" class="btn">
    </form>
 
@@ -171,8 +168,17 @@ if (isset($_GET['delete'])) {
    <div class="box">
       <img src="../uploaded_img/<?= $fetch_products['image']; ?>" alt="">
       <div class="flex">
-         <div class="price"><span>$</span><?= $fetch_products['price']; ?><span>/-</span></div>
+         <!-- Prices for different sizes -->
          <div class="category"><?= $fetch_products['category_name']; ?></div>
+          <br>
+
+         <?php
+         for ($i = 1; $i <= 3; $i++) {
+             if (!empty($fetch_products["price_$i"])) {
+                 echo '<div class="price"><span>Price ' . $i . ': $</span>' . $fetch_products["price_$i"] . '<span>/-</span></div>';
+             }
+         }
+         ?>
       </div>
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="description"><?= $fetch_products['description']; ?></div>
@@ -196,6 +202,26 @@ if (isset($_GET['delete'])) {
 
 <!-- custom js file link  -->
 <script src="../js/admin_script.js"></script>
+
+<script>
+function updatePriceFields(numberOfPrices) {
+    var priceFieldsContainer = document.getElementById('price_fields');
+    priceFieldsContainer.innerHTML = '';
+
+    for (var i = 1; i <= numberOfPrices; i++) {
+        var input = document.createElement('input');
+        input.type = 'number';
+        input.step = '0.01';
+        input.name = 'price_' + i;
+        input.className = 'box';
+        input.placeholder = 'Enter price ' + i;
+        priceFieldsContainer.appendChild(input);
+    }
+}
+
+// Initialize with 1 price field
+updatePriceFields(document.getElementById('number_of_prices').value);
+</script>
 
 </body>
 </html>

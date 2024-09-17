@@ -23,6 +23,7 @@ $fetch_products->execute([$category_id]);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Section</title>
     <link rel="icon" href="./images/tam.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="./CSS/style.css">
     <link rel="stylesheet" href="./CSS/media.css">
     <link rel="stylesheet" href="./CSS/all.min.css">
@@ -34,68 +35,99 @@ $fetch_products->execute([$category_id]);
     .almarai-light {
         font-family: "Almarai", sans-serif;
         font-weight: 300;
-        font-style: normal;
     }
 
     .almarai-regular {
         font-family: "Almarai", sans-serif;
         font-weight: 400;
-        font-style: normal;
     }
 
     .almarai-bold {
         font-family: "Almarai", sans-serif;
         font-weight: 700;
-        font-style: normal;
     }
 
     .almarai-extrabold {
         font-family: "Almarai", sans-serif;
         font-weight: 800;
-        font-style: normal;
     }
 
     body {
-    font-family: "Almarai", sans-serif;
-    font-feature-settings: "cv02","cv03","cv04","cv11";
-}
+        font-family: "Almarai", sans-serif;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
 
+    .card-price {
+        font-size: 18px;
+        color: #333;
+    }
+
+    .card-description {
+        font-size: 18px;
+        color: #777;
+    }
+
+    .le {
+        color: #F48F06;
+    }
 </style>
 
 <body>
-    <section id="menu" >
+
+    <section id="menu" class="my-3">
+
         <div class="container">
-            <div class="title">
-                <h2><?= htmlspecialchars($category_name); // Display the real category name ?></h2>
+            <div class="title text-center mb-4">
+                <h2 class="almarai-bold "><?= htmlspecialchars($category_name); // Display the real category name ?>
+                </h2>
             </div>
-            <div class="menu-items ">
-                <div class="menu-items-left">
-                    <?php
-                    if ($fetch_products->rowCount() > 0) {
-                        while ($product = $fetch_products->fetch(PDO::FETCH_ASSOC)) {
-                            $product_image = $product['image'] ? 'uploaded_img/' . $product['image'] : 'images/default-prod.png';
-                            $product_name = htmlspecialchars($product['name']);
-                            $product_price = htmlspecialchars($product['price']);
-                            $product_description = htmlspecialchars($product['description']); // Fetch description
-                            ?>
-                            <div class="menu-item almarai-light">
-                                <img src="<?= $product_image; ?>" alt="<?= $product_name; ?>">
-                                <div>
-                                    <h4 class="almarai-light"><?= $product_name; ?></h4>
-                                    <p><?= $product_description; // Display the product description ?></p>
-                                    <span class="primary-text"> <?= $product_price; ?> LE</span>
+            <div class="row ">
+                <?php
+                if ($fetch_products->rowCount() > 0) {
+                    while ($product = $fetch_products->fetch(PDO::FETCH_ASSOC)) {
+                        $product_image = $product['image'] ? 'uploaded_img/' . $product['image'] : 'images/default-prod.png';
+                        $product_name = htmlspecialchars($product['name']);
+                        $product_description = htmlspecialchars($product['description']); // Fetch description
+                        ?>
+                        <div class="col-md-4 mb-4 mt-3">
+                            <div class="card almarai-light"
+                                style="border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <img src="<?= $product_image; ?>" class="card-img-top" alt="<?= $product_name; ?>"
+                                    style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title"><?= $product_name; ?></h5>
+                                    <p class="card-description "><?= $product_description; ?></p>
+                                    <div class="d-flex flex-wrap">
+                                        <?php if (!empty($product['price_1']) && $product['price_1'] > 0) { ?>
+                                            <div class="card-price m-2 fw-bold"><?= htmlspecialchars($product['price_1']); ?><span
+                                                    class="le"> LE</span></div>
+                                        <?php } ?>
+                                        <?php if (!empty($product['price_2']) && $product['price_2'] > 0) { ?>
+                                            <div class="card-price m-2 fw-bold"><?= htmlspecialchars($product['price_2']); ?><span
+                                                    class="le"> LE</span></div>
+                                        <?php } ?>
+                                        <?php if (!empty($product['price_3']) && $product['price_3'] > 0) { ?>
+                                            <div class="card-price m-2 fw-bold"><?= htmlspecialchars($product['price_3']); ?><span
+                                                    class="le"> LE</span></div>
+                                        <?php } ?>
+                                    </div>
                                 </div>
                             </div>
-                            <?php
-                        }
-                    } else {
-                        echo '<div class="col-12 text-center"><span class="badge rounded-pill text-bg-danger">No products available in this category</span></div>';
+                        </div>
+
+
+                        <?php
                     }
-                    ?>
-                </div>
+                } else {
+                    echo '<div class="col-12 text-center"><span class="badge badge-danger">No products available in this category</span></div>';
+                }
+                ?>
             </div>
         </div>
     </section>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

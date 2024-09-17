@@ -77,8 +77,9 @@ $fetch_categories->execute();
     <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa+Ink:wght@400;700&display=swap" rel="stylesheet">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- 
         The following line specifies the canonical URL for this page.
@@ -138,8 +139,6 @@ $fetch_categories->execute();
             font-weight: 700;
             font-style: normal;
         }
-
-    
     </style>
 
 </head>
@@ -272,14 +271,14 @@ $fetch_categories->execute();
                             </li>
 
                             <li class="nav-item">
-                                <a href="#"
+                                <a href="about.php"
                                     class="px-3 text-white bg-primary-hover nav-link rounded-3 text-base leading-6 fw-semibold">
                                     عننا
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="#"
+                                <a href="contact.php"
                                     class="px-3 text-white bg-primary-hover nav-link rounded-3 text-base leading-6 fw-semibold">
                                     للشكاوي والاقتراحات
                                 </a>

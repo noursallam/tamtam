@@ -16,18 +16,23 @@ if (isset($_POST['update'])) {
     $pid = filter_var($pid, FILTER_SANITIZE_STRING);
     $name = $_POST['name'];
     $name = filter_var($name, FILTER_SANITIZE_STRING);
-    $price = $_POST['price'];
-    $price = filter_var($price, FILTER_SANITIZE_STRING);
+
+    $price_1 = isset($_POST['price_1']) ? filter_var($_POST['price_1'], FILTER_SANITIZE_STRING) : NULL;
+    $price_2 = isset($_POST['price_2']) ? filter_var($_POST['price_2'], FILTER_SANITIZE_STRING) : NULL;
+    $price_3 = isset($_POST['price_3']) ? filter_var($_POST['price_3'], FILTER_SANITIZE_STRING) : NULL;
+
     $category = $_POST['category'];
     $category = filter_var($category, FILTER_SANITIZE_STRING);
     $description = $_POST['description'];
     $description = filter_var($description, FILTER_SANITIZE_STRING);
 
-    $update_product = $conn->prepare("UPDATE `products` SET name = ?, category_id = ?, price = ?, description = ? WHERE id = ?");
-    $update_product->execute([$name, $category, $price, $description, $pid]);
+    // Update product including prices
+    $update_product = $conn->prepare("UPDATE `products` SET name = ?, category_id = ?, price_1 = ?, price_2 = ?, price_3 = ?, description = ? WHERE id = ?");
+    $update_product->execute([$name, $category, $price_1, $price_2, $price_3, $description, $pid]);
 
     $message[] = 'Product updated!';
 
+    // Handle image upload
     $old_image = $_POST['old_image'];
     $image = $_FILES['image']['name'];
     $image = filter_var($image, FILTER_SANITIZE_STRING);
@@ -58,10 +63,10 @@ if (isset($_POST['update'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Product</title>
 
-    <!-- font awesome cdn link  -->
+    <!-- Font Awesome CDN Link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-    <!-- custom css file link  -->
+    <!-- Custom CSS File Link -->
     <link rel="stylesheet" href="../css/admin_style.css">
 
 </head>
@@ -69,8 +74,7 @@ if (isset($_POST['update'])) {
 
 <?php include '../components/admin_header.php'; ?>
 
-<!-- Update product section starts  -->
-
+<!-- Update Product Section Starts -->
 <section class="update-product">
     <h1 class="heading">Update Product</h1>
 
@@ -85,10 +89,19 @@ if (isset($_POST['update'])) {
         <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
         <input type="hidden" name="old_image" value="<?= $fetch_products['image']; ?>">
         <img src="../uploaded_img/<?= $fetch_products['image']; ?>" alt="">
+        
         <span>Update Name</span>
         <input type="text" required placeholder="Enter product name" name="name" maxlength="100" class="box" value="<?= $fetch_products['name']; ?>">
-        <span>Update Price</span>
-        <input type="number" min="0" max="9999999999" required placeholder="Enter product price" name="price" onkeypress="if(this.value.length == 10) return false;" class="box" value="<?= $fetch_products['price']; ?>">
+        
+        <span>Update Price 1</span>
+        <input type="number" min="0" step="0.01" placeholder="Enter price 1" name="price_1" class="box" value="<?= $fetch_products['price_1']; ?>">
+        
+        <span>Update Price 2</span>
+        <input type="number" min="0" step="0.01" placeholder="Enter price 2" name="price_2" class="box" value="<?= $fetch_products['price_2']; ?>">
+        
+        <span>Update Price 3</span>
+        <input type="number" min="0" step="0.01" placeholder="Enter price 3" name="price_3" class="box" value="<?= $fetch_products['price_3']; ?>">
+        
         <span>Update Category</span>
         <select name="category" class="box" required>
             <option selected value="<?= $fetch_products['category_id']; ?>">
@@ -113,10 +126,13 @@ if (isset($_POST['update'])) {
             }
             ?>
         </select>
+        
         <span>Update Description</span>
         <textarea name="description" rows="4" placeholder="Enter product description" class="box"><?= $fetch_products['description']; ?></textarea>
+        
         <span>Update Image</span>
         <input type="file" name="image" class="box" accept="image/jpg, image/jpeg, image/png, image/webp">
+        
         <div class="flex-btn">
             <input type="submit" value="Update" class="btn" name="update">
             <a href="products.php" class="option-btn">Go Back</a>
@@ -128,12 +144,11 @@ if (isset($_POST['update'])) {
         echo '<p class="empty">No products added yet!</p>';
     }
     ?>
-
 </section>
 
-<!-- Update product section ends -->
+<!-- Update Product Section Ends -->
 
-<!-- custom js file link  -->
+<!-- Custom JS File Link -->
 <script src="../js/admin_script.js"></script>
 
 </body>

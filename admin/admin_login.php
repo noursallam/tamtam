@@ -4,6 +4,7 @@ include '../components/connect.php';
 
 session_start();
 
+// tamtam2024###
 if(isset($_POST['submit'])){
 
    $name = $_POST['name'];
@@ -62,7 +63,6 @@ if(isset($message)){
 
    <form action="" method="POST">
       <h3>login now</h3>
-      <p>default username = <span>admin</span> & password = <span>111</span></p>
       <input type="text" name="name" maxlength="20" required placeholder="enter your username" class="box" oninput="this.value = this.value.replace(/\s/g, '')">
       <input type="password" name="pass" maxlength="20" required placeholder="enter your password" class="box" oninput="this.value = this.value.replace(/\s/g, '')">
       <input type="submit" value="login now" name="submit" class="btn">

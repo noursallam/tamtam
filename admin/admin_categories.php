@@ -43,5 +43,3 @@ if (!isset($admin_id)) {
 
 ?>
 
-
-Future not available
