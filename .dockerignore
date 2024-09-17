@@ -1,7 +1,0 @@
-# Ignore node_modules, logs, and other unnecessary files
-node_modules
-*.log
-.git
-.gitignore
-Dockerfile
-docker-compose.yml
